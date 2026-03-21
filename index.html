@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>NEET Tracker</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    h2 { margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+<h1>NEET Syllabus Tracker</h1>
+<h3 id="progress">Progress: 0%</h3>
+
+<div id="tracker"></div>
+
+<script>
+const syllabus = {
+  Physics: ["Units","Kinematics","Laws of Motion","WEP","Thermo","Optics"],
+  Chemistry: ["Mole","Bonding","Equilibrium","GOC","Hydrocarbons","Biomolecules"],
+  Biology: ["Cell","Physiology","Genetics","Ecology","Biotech","Reproduction"]
+};
+
+let data = JSON.parse(localStorage.getItem("neet")) || {};
+
+function render() {
+  let total = 0, done = 0;
+  let html = "";
+
+  for (let subject in syllabus) {
+    html += "<h2>" + subject + "</h2>";
+    syllabus[subject].forEach(ch => {
+      total++;
+      let checked = data[subject]?.[ch] || false;
+      if (checked) done++;
+
+      html += `
+        <label>
+          <input type="checkbox" ${checked ? "checked" : ""} 
+          onchange="toggle('${subject}','${ch}')">
+          ${ch}
+        </label><br>
+      `;
+    });
+  }
+
+  document.getElementById("tracker").innerHTML = html;
+  document.getElementById("progress").innerText =
+    "Progress: " + Math.round((done/total)*100) + "%";
+}
+
+function toggle(sub, ch) {
+  if (!data[sub]) data[sub] = {};
+  data[sub][ch] = !data[sub][ch];
+  localStorage.setItem("neet", JSON.stringify(data));
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
