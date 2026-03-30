@@ -1,49 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>NEET Tracker</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    h3 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #94a3b8;
+    }
+
+    .subject {
+      background: #1e293b;
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      margin-bottom: 10px;
+      color: #94a3b8;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      border-bottom: 1px solid #334155;
+    }
+
+    .chapter {
+      flex: 2;
+      font-size: 14px;
+    }
+
+    .checks {
+      display: flex;
+      gap: 10px;
+    }
+
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: #334155;
+      border-radius: 10px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    .fill {
+      height: 100%;
+      background: #22c55e;
+      width: 0%;
+      transition: 0.3s;
+    }
+  </style>
+
+</head>
+<body>
+
+<h1>NEET Syllabus Tracker</h1>
+<h3 id="progress">Progress: 0%</h3>
+
+<div id="tracker"></div>
+
 <script>
 const syllabus = {
-
-Physics: [
-"Units & Measurements","Motion in Straight Line","Motion in Plane",
-"Laws of Motion","Work Energy Power","Circular Motion","Rotational Motion",
-"Centre of Mass,Momentum and Collision","Gravitation",
-"Mechanical Properties of Solids","Mechanical Properties of Fluids",
-"Kinetic Theory","Thermal Properties of Matter","Thermodynamics",
-"Oscillations","Waves","Electrostatics","Capacitance",
-"Current Electricity","Moving Charges & Magnetism","Magnetism & Matter",
-"Electromagnetic Induction","Alternating Current","Electromagnetic Waves",
-"Ray Optics","Wave Optics","Dual Nature","Nuclei","Semiconductors","Atoms"
-],
-
-Chemistry: [
-"Some Basic Concepts","Structure of Atom","Classification of Elements","Chemical Bonding",
-"Thermodynamics","Chemical Equilibrium","Ionic Equilibrium","Redox Reactions",
-"Classification and nomenclature","GOC","Isomerism","Hydrocarbons",
-"Solutions","Electrochemistry","Chemical Kinetics",
-"d&f block","Coordination compounds","optical Isomerism",
-"Haloalkanes Haloarenes","Alcohol Phenol Ether",
-"Aldehyde Ketone,Carboxylic Acids","Amines",
-"Biomolecules","p-block elements","Salt analysis"
-],
-
-Botany: [
-"Living World","Biological Classification","Plant Kingdom",
-"Morphology of Flowering Plants","Anatomy of Flowering Plants",
-"Cell Unit of Life","Cell Cycle","Photosynthesis",
-"Respiration in Plants","Plant Growth",
-"Sexual Reproduction in Flowering Plants",
-"Principles of Inheritance","Molecular Basis of Inheritance",
-"Evolution","Biotechnology Principles","Biotechnology Applications",
-"Organisms and Populations","Ecosystem","Biodiversity"
-],
-
-Zoology: [
-"Animal Kingdom","Structural Organisation in Animals",
-"Biomolecules","Breathing and Exchange of Gases",
-"Body Fluids and Circulation","Excretory Products",
-"Locomotion and Movement","Neural Control and Coordination",
-"Chemical Coordination","Human Reproduction","Reproductive Health",
-"Human Health and Disease","Microbes in Human Welfare"
-]
-
+Physics: ["Units & Measurements","Motion in Straight Line","Motion in Plane","Laws of Motion","Work Energy Power"],
+Chemistry: ["Some Basic Concepts","Structure of Atom","Classification of Elements","Chemical Bonding"],
+Botany: ["Living World","Biological Classification","Plant Kingdom"],
+Zoology: ["Animal Kingdom","Structural Organisation in Animals"]
 };
 
 let data = JSON.parse(localStorage.getItem("neetTracker")) || {};
@@ -53,14 +100,18 @@ function render() {
   let html = "";
 
   for (let subject in syllabus) {
-    html += `<div class="box ${subject}">
+
+    let subTotal = syllabus[subject].length;
+    let subDone = 0;
+
+    html += `<div class="subject">
       <h2>${subject}</h2>
 
       <div class="header">
         <div class="chapter">Chapter</div>
         <div class="checks">
           <span>Notes</span>
-          <span>Q's</span>
+          <span>Q</span>
           <span>NCERT</span>
           <span>Done</span>
         </div>
@@ -74,7 +125,10 @@ function render() {
         notes:false, ques:false, ncert:false, done:false
       };
 
-      if (obj.done) done++;
+      if (obj.done) {
+        done++;
+        subDone++;
+      }
 
       html += `
         <div class="row">
@@ -82,28 +136,42 @@ function render() {
 
           <div class="checks">
             <input type="checkbox" ${obj.notes ? "checked":""}
-              onchange="toggle('${subject}', \`${ch}\`, 'notes')">
+              data-sub="${subject}" data-ch="${ch}" data-type="notes">
 
             <input type="checkbox" ${obj.ques ? "checked":""}
-              onchange="toggle('${subject}', \`${ch}\`, 'ques')">
+              data-sub="${subject}" data-ch="${ch}" data-type="ques">
 
             <input type="checkbox" ${obj.ncert ? "checked":""}
-              onchange="toggle('${subject}', \`${ch}\`, 'ncert')">
+              data-sub="${subject}" data-ch="${ch}" data-type="ncert">
 
             <input type="checkbox" ${obj.done ? "checked":""}
-              onchange="toggle('${subject}', \`${ch}\`, 'done')">
+              data-sub="${subject}" data-ch="${ch}" data-type="done">
           </div>
         </div>
       `;
     });
 
-    html += `</div>`;
+    let percent = Math.round((subDone/subTotal)*100);
+
+    html += `
+      <div class="progress-bar">
+        <div class="fill" style="width:${percent}%"></div>
+      </div>
+    </div>
+    `;
   }
 
   document.getElementById("tracker").innerHTML = html;
 
   document.getElementById("progress").innerText =
     "Progress: " + Math.round((done/total)*100) + "%";
+
+  // ✅ event listeners (no bugs)
+  document.querySelectorAll("input[type=checkbox]").forEach(cb => {
+    cb.addEventListener("change", () => {
+      toggle(cb.dataset.sub, cb.dataset.ch, cb.dataset.type);
+    });
+  });
 }
 
 function toggle(sub, ch, type) {
@@ -114,9 +182,17 @@ function toggle(sub, ch, type) {
 
   data[sub][ch][type] = !data[sub][ch][type];
 
+  let obj = data[sub][ch];
+
+  // auto done
+  obj.done = obj.notes && obj.ques && obj.ncert;
+
   localStorage.setItem("neetTracker", JSON.stringify(data));
   render();
 }
 
 render();
 </script>
+
+</body>
+</html>
