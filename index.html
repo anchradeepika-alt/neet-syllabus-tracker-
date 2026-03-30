@@ -2,68 +2,8 @@
 <html>
 <head>
   <title>NEET Tracker</title>
-
-  <style>
-    body {
-      font-family: Arial;
-      padding: 20px;
-      background: linear-gradient(135deg, #74ebd5, #acb6e5);
-    }
-
-    h1 { text-align:center; color:#222; }
-    h3 { text-align:center; }
-
-    .box {
-      padding:15px;
-      border-radius:12px;
-      margin-bottom:15px;
-      color:white;
-      position: relative;   
-  z-index: 1;
-    }
-
-    .Physics { background:#ff6b6b; }
-    .Chemistry { background:#4ecdc4; }
-    .Botany { background:#51cf66; }
-    .Zoology { background:#845ef7; }
-
-    .row {
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      padding:6px 0;
-      border-bottom:1px solid rgba(255,255,255,0.2);
-      position: relative;   
-  z-index: 2;
-    }
-
-    .chapter {
-      flex:2;
-    }
-
-    .checks {
-      display:flex;
-      gap:10px;
-    }
-
-    input[type="checkbox"] {
-      width:18px;
-      height:18px;
-      cursor:pointer;
-      accent-color: white;
-    }
-
-    .header {
-      display:flex;
-      justify-content:space-between;
-      font-size:12px;
-      opacity:0.9;
-      margin-bottom:8px;
-      pointer-events: none;
-      }
-  </style>
-
 </head>
+
 <body>
 
 <h1>NEET Syllabus Tracker</h1>
@@ -126,19 +66,7 @@ function render() {
   let html = "";
 
   for (let subject in syllabus) {
-    html += `<div class="box ${subject}">
-      <h2>${subject}</h2>
-
-      <div class="header">
-        <div class="chapter">Chapter</div>
-        <div class="checks">
-          <span>Notes</span>
-          <span>Q's</span>
-          <span>NCERT</span>
-          <span>Done</span>
-        </div>
-      </div>
-    `;
+    html += `<h2>${subject}</h2>`;
 
     syllabus[subject].forEach(ch => {
       total++;
@@ -147,38 +75,26 @@ function render() {
         notes:false, ques:false, ncert:false, done:false
       };
 
-      // ✅ auto mark done if all 3 are checked
-      if (obj.notes && obj.ques && obj.ncert) {
-        obj.done = true;
-      }
-
       if (obj.done) done++;
 
-      // encode to avoid breaking HTML
-      let safeCh = encodeURIComponent(ch);
-
       html += `
-        <div class="row">
-          <div class="chapter">${ch}</div>
+        <div>
+          <span>${ch}</span>
 
-          <div class="checks">
-            <input type="checkbox" ${obj.notes ? "checked":""}
-              onchange="toggle('${subject}','${safeCh}','notes')">
+          <input type="checkbox" ${obj.notes ? "checked":""}
+            onchange="toggle('${subject}','${ch}','notes')"> Notes
 
-            <input type="checkbox" ${obj.ques ? "checked":""}
-              onchange="toggle('${subject}','${safeCh}','ques')">
+          <input type="checkbox" ${obj.ques ? "checked":""}
+            onchange="toggle('${subject}','${ch}','ques')"> Q
 
-            <input type="checkbox" ${obj.ncert ? "checked":""}
-              onchange="toggle('${subject}','${safeCh}','ncert')">
+          <input type="checkbox" ${obj.ncert ? "checked":""}
+            onchange="toggle('${subject}','${ch}','ncert')"> NCERT
 
-            <input type="checkbox" ${obj.done ? "checked":""}
-              onchange="toggle('${subject}','${safeCh}','done')">
-          </div>
+          <input type="checkbox" ${obj.done ? "checked":""}
+            onchange="toggle('${subject}','${ch}','done')"> Done
         </div>
       `;
     });
-
-    html += `</div>`;
   }
 
   document.getElementById("tracker").innerHTML = html;
@@ -187,9 +103,7 @@ function render() {
     "Progress: " + Math.round((done/total)*100) + "%";
 }
 
-function toggle(sub, chEncoded, type) {
-  let ch = decodeURIComponent(chEncoded);
-
+function toggle(sub, ch, type) {
   if (!data[sub]) data[sub] = {};
   if (!data[sub][ch]) {
     data[sub][ch] = {notes:false, ques:false, ncert:false, done:false};
@@ -197,10 +111,13 @@ function toggle(sub, chEncoded, type) {
 
   data[sub][ch][type] = !data[sub][ch][type];
 
-  // ✅ auto-update done
   let obj = data[sub][ch];
+
+  // auto done logic
   if (obj.notes && obj.ques && obj.ncert) {
     obj.done = true;
+  } else {
+    obj.done = false;
   }
 
   localStorage.setItem("neetTracker", JSON.stringify(data));
@@ -209,5 +126,6 @@ function toggle(sub, chEncoded, type) {
 
 render();
 </script>
+
 </body>
 </html>
