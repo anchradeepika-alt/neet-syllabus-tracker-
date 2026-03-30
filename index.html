@@ -142,7 +142,15 @@ function render() {
         notes:false, ques:false, ncert:false, done:false
       };
 
+      // ✅ auto mark done if all 3 are checked
+      if (obj.notes && obj.ques && obj.ncert) {
+        obj.done = true;
+      }
+
       if (obj.done) done++;
+
+      // encode to avoid breaking HTML
+      let safeCh = encodeURIComponent(ch);
 
       html += `
         <div class="row">
@@ -150,16 +158,16 @@ function render() {
 
           <div class="checks">
             <input type="checkbox" ${obj.notes ? "checked":""}
-              onchange="toggle('${subject}', \`${ch}\`, 'notes')">
+              onchange="toggle('${subject}','${safeCh}','notes')">
 
             <input type="checkbox" ${obj.ques ? "checked":""}
-              onchange="toggle('${subject}', \`${ch}\`, 'ques')">
+              onchange="toggle('${subject}','${safeCh}','ques')">
 
             <input type="checkbox" ${obj.ncert ? "checked":""}
-              onchange="toggle('${subject}', \`${ch}\`, 'ncert')">
+              onchange="toggle('${subject}','${safeCh}','ncert')">
 
             <input type="checkbox" ${obj.done ? "checked":""}
-              onchange="toggle('${subject}', \`${ch}\`, 'done')">
+              onchange="toggle('${subject}','${safeCh}','done')">
           </div>
         </div>
       `;
@@ -174,13 +182,21 @@ function render() {
     "Progress: " + Math.round((done/total)*100) + "%";
 }
 
-function toggle(sub, ch, type) {
+function toggle(sub, chEncoded, type) {
+  let ch = decodeURIComponent(chEncoded);
+
   if (!data[sub]) data[sub] = {};
   if (!data[sub][ch]) {
     data[sub][ch] = {notes:false, ques:false, ncert:false, done:false};
   }
 
   data[sub][ch][type] = !data[sub][ch][type];
+
+  // ✅ auto-update done
+  let obj = data[sub][ch];
+  if (obj.notes && obj.ques && obj.ncert) {
+    obj.done = true;
+  }
 
   localStorage.setItem("neetTracker", JSON.stringify(data));
   render();
