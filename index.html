@@ -2,13 +2,62 @@
 <html>
 <head>
   <title>NEET Tracker</title>
+
   <style>
-    body { font-family: Arial; padding: 20px; background:#f5f5f5; }
-    h1 { text-align:center; }
-    h2 { margin-top:20px; color:#333; }
-    .box { background:white; padding:15px; border-radius:10px; margin-bottom:15px; }
-    label { display:block; margin:5px 0; }
+    body {
+      font-family: Arial;
+      padding: 20px;
+      background: linear-gradient(135deg, #74ebd5, #acb6e5);
+    }
+
+    h1 { text-align:center; color:#222; }
+    h3 { text-align:center; }
+
+    .box {
+      padding:15px;
+      border-radius:12px;
+      margin-bottom:15px;
+      color:white;
+    }
+
+    .Physics { background:#ff6b6b; }
+    .Chemistry { background:#4ecdc4; }
+    .Botany { background:#51cf66; }
+    .Zoology { background:#845ef7; }
+
+    .row {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:6px 0;
+      border-bottom:1px solid rgba(255,255,255,0.2);
+    }
+
+    .chapter {
+      flex:2;
+    }
+
+    .checks {
+      display:flex;
+      gap:10px;
+    }
+
+    input[type="checkbox"] {
+      width:18px;
+      height:18px;
+      cursor:pointer;
+      accent-color: white;
+    }
+
+    .header {
+      display:flex;
+      justify-content:space-between;
+      font-size:12px;
+      opacity:0.9;
+      margin-bottom:8px;
+    }
   </style>
+
 </head>
 <body>
 
@@ -22,28 +71,31 @@ const syllabus = {
 
 Physics: [
 "Units & Measurements","Motion in Straight Line","Motion in Plane",
-"Laws of Motion","Work Energy Power","Circular Motion ","Rotational Motion","Centre of Mass,Momentum and Collision " ,"Gravitation",
-"Mechanical Properties of Solids","Mechanical Properties of Fluids","Kinetic Theory",
-"Thermal Properties of Matter","Thermodynamics","Oscillations","Waves",
-"Electrostatics","Capacitance","Current Electricity","Moving Charges & Magnetism","Magnetism & Matter",
+"Laws of Motion","Work Energy Power","Circular Motion","Rotational Motion",
+"Centre of Mass,Momentum and Collision","Gravitation",
+"Mechanical Properties of Solids","Mechanical Properties of Fluids",
+"Kinetic Theory","Thermal Properties of Matter","Thermodynamics",
+"Oscillations","Waves","Electrostatics","Capacitance",
+"Current Electricity","Moving Charges & Magnetism","Magnetism & Matter",
 "Electromagnetic Induction","Alternating Current","Electromagnetic Waves",
-"Ray Optics","Wave Optics","Dual Nature","Nuclei","Semiconductors","Atoms",
+"Ray Optics","Wave Optics","Dual Nature","Nuclei","Semiconductors","Atoms"
 ],
 
 Chemistry: [
 "Some Basic Concepts","Structure of Atom","Classification of Elements","Chemical Bonding",
-"Thermodynamics","Chemical Equilibrium"," Ionic Equilibrium","Redox Reactions",
-"Classification and nomenclature"," GOC ","Isomerism","Hydrocarbons",
+"Thermodynamics","Chemical Equilibrium","Ionic Equilibrium","Redox Reactions",
+"Classification and nomenclature","GOC","Isomerism","Hydrocarbons",
 "Solutions","Electrochemistry","Chemical Kinetics",
-"d&f block","Coordination compounds"," optical Isomerism","Haloalkanes Haloarenes",
-"Alcohol Phenol Ether","Aldehyde Ketone,Carboxylic Acids","Amines",
-"Biomolecules", "p-block elements" , "Salt analysis"
+"d&f block","Coordination compounds","optical Isomerism",
+"Haloalkanes Haloarenes","Alcohol Phenol Ether",
+"Aldehyde Ketone,Carboxylic Acids","Amines",
+"Biomolecules","p-block elements","Salt analysis"
 ],
 
 Botany: [
-"Living World","Biological Classification","Plant Kingdom","Morphology of Flowering Plants",
-"Anatomy of Flowering Plants","Cell Unit of Life","Cell Cycle",
-"Photosynthesis",
+"Living World","Biological Classification","Plant Kingdom",
+"Morphology of Flowering Plants","Anatomy of Flowering Plants",
+"Cell Unit of Life","Cell Cycle","Photosynthesis",
 "Respiration in Plants","Plant Growth",
 "Sexual Reproduction in Flowering Plants",
 "Principles of Inheritance","Molecular Basis of Inheritance",
@@ -54,9 +106,9 @@ Botany: [
 Zoology: [
 "Animal Kingdom","Structural Organisation in Animals",
 "Biomolecules","Breathing and Exchange of Gases",
-"Body Fluids and Circulation","Excretory Products","Locomotion and Movement",
-"Neural Control and Coordination","Chemical Coordination",
-"Human Reproduction","Reproductive Health",
+"Body Fluids and Circulation","Excretory Products",
+"Locomotion and Movement","Neural Control and Coordination",
+"Chemical Coordination","Human Reproduction","Reproductive Health",
 "Human Health and Disease","Microbes in Human Welfare"
 ]
 
@@ -69,19 +121,47 @@ function render() {
   let html = "";
 
   for (let subject in syllabus) {
-    html += `<div class="box"><h2>${subject}</h2>`;
-    
+    html += `<div class="box ${subject}">
+      <h2>${subject}</h2>
+
+      <div class="header">
+        <div class="chapter">Chapter</div>
+        <div class="checks">
+          <span>NCERT</span>
+          <span>Q</span>
+          <span>Rev</span>
+          <span>Done</span>
+        </div>
+      </div>
+    `;
+
     syllabus[subject].forEach(ch => {
       total++;
-      let checked = data[subject]?.[ch] || false;
-      if (checked) done++;
+
+      let obj = data[subject]?.[ch] || {
+        ncert:false, ques:false, rev:false, done:false
+      };
+
+      if (obj.done) done++;
 
       html += `
-        <label>
-          <input type="checkbox" ${checked ? "checked" : ""}
-          onchange="toggle('${subject}','${ch}')">
-          ${ch}
-        </label>
+        <div class="row">
+          <div class="chapter">${ch}</div>
+
+          <div class="checks">
+            <input type="checkbox" ${obj.ncert ? "checked":""}
+              onchange="toggle('${subject}','${ch}','ncert')">
+
+            <input type="checkbox" ${obj.ques ? "checked":""}
+              onchange="toggle('${subject}','${ch}','ques')">
+
+            <input type="checkbox" ${obj.rev ? "checked":""}
+              onchange="toggle('${subject}','${ch}','rev')">
+
+            <input type="checkbox" ${obj.done ? "checked":""}
+              onchange="toggle('${subject}','${ch}','done')">
+          </div>
+        </div>
       `;
     });
 
@@ -89,13 +169,19 @@ function render() {
   }
 
   document.getElementById("tracker").innerHTML = html;
+
   document.getElementById("progress").innerText =
     "Progress: " + Math.round((done/total)*100) + "%";
 }
 
-function toggle(sub, ch) {
+function toggle(sub, ch, type) {
   if (!data[sub]) data[sub] = {};
-  data[sub][ch] = !data[sub][ch];
+  if (!data[sub][ch]) {
+    data[sub][ch] = {ncert:false, ques:false, rev:false, done:false};
+  }
+
+  data[sub][ch][type] = !data[sub][ch][type];
+
   localStorage.setItem("neetTracker", JSON.stringify(data));
   render();
 }
