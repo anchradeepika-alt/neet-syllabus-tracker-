@@ -1,16 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>NEET Tracker</title>
-</head>
-
-<body>
-
-<h1>NEET Syllabus Tracker</h1>
-<h3 id="progress">Progress: 0%</h3>
-
-<div id="tracker"></div>
-
 <script>
 const syllabus = {
 
@@ -66,7 +53,19 @@ function render() {
   let html = "";
 
   for (let subject in syllabus) {
-    html += `<h2>${subject}</h2>`;
+    html += `<div class="box ${subject}">
+      <h2>${subject}</h2>
+
+      <div class="header">
+        <div class="chapter">Chapter</div>
+        <div class="checks">
+          <span>Notes</span>
+          <span>Q's</span>
+          <span>NCERT</span>
+          <span>Done</span>
+        </div>
+      </div>
+    `;
 
     syllabus[subject].forEach(ch => {
       total++;
@@ -78,23 +77,27 @@ function render() {
       if (obj.done) done++;
 
       html += `
-        <div>
-          <span>${ch}</span>
+        <div class="row">
+          <div class="chapter">${ch}</div>
 
-          <input type="checkbox" ${obj.notes ? "checked":""}
-            onchange="toggle('${subject}','${ch}','notes')"> Notes
+          <div class="checks">
+            <input type="checkbox" ${obj.notes ? "checked":""}
+              onchange="toggle('${subject}', \`${ch}\`, 'notes')">
 
-          <input type="checkbox" ${obj.ques ? "checked":""}
-            onchange="toggle('${subject}','${ch}','ques')"> Q
+            <input type="checkbox" ${obj.ques ? "checked":""}
+              onchange="toggle('${subject}', \`${ch}\`, 'ques')">
 
-          <input type="checkbox" ${obj.ncert ? "checked":""}
-            onchange="toggle('${subject}','${ch}','ncert')"> NCERT
+            <input type="checkbox" ${obj.ncert ? "checked":""}
+              onchange="toggle('${subject}', \`${ch}\`, 'ncert')">
 
-          <input type="checkbox" ${obj.done ? "checked":""}
-            onchange="toggle('${subject}','${ch}','done')"> Done
+            <input type="checkbox" ${obj.done ? "checked":""}
+              onchange="toggle('${subject}', \`${ch}\`, 'done')">
+          </div>
         </div>
       `;
     });
+
+    html += `</div>`;
   }
 
   document.getElementById("tracker").innerHTML = html;
@@ -111,21 +114,9 @@ function toggle(sub, ch, type) {
 
   data[sub][ch][type] = !data[sub][ch][type];
 
-  let obj = data[sub][ch];
-
-  // auto done logic
-  if (obj.notes && obj.ques && obj.ncert) {
-    obj.done = true;
-  } else {
-    obj.done = false;
-  }
-
   localStorage.setItem("neetTracker", JSON.stringify(data));
   render();
 }
 
 render();
 </script>
-
-</body>
-</html>
